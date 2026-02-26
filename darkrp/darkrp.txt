@@ -1,0 +1,7 @@
+"darkrp"
+{
+	"base"		"sandbox"
+	"title"		"SwiftCore"
+	"category"	"rp"
+	"menusystem"	"1"
+}
