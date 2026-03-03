@@ -932,3 +932,14 @@ end)
 :SetFlag('e')
 :SetHelp('Добавить опыт игроку')
 :SetIcon('icon16/lightning.png')
+cmd.Create("bots", function(ply, args)
+	if ply:IsRoot() then
+    	for i = 1, tonumber(args.amount) do
+			RunConsoleCommand('bot')
+		end
+    end
+end)
+:AddParam('number', 'amount')
+:SetFlag('e')
+:SetHelp('добалвяет ботов')
+:SetIcon('icon16/lightning.png')

@@ -12,7 +12,7 @@ cfg.Player.JumpPower = 200
 
 cfg.Stamina = cfg.Stamina or {}
 cfg.Stamina.Enable = true -- restart
-cfg.Stamina.Max = 1000
+cfg.Stamina.Max = 155
 cfg.Stamina.DrainRun = 15
 cfg.Stamina.DrainJump = 15
 cfg.Stamina.RegenWalk = 5

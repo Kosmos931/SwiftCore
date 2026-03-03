@@ -8,7 +8,6 @@ RAdd("user", "User")
     :SetRankLevel(1)
     :SetImmunity(0)
     :SetFlags("a")
-    :SetMaxProps(5)
     :Register()
 
 RAdd("vip", "VIP")
@@ -16,7 +15,6 @@ RAdd("vip", "VIP")
     :SetImmunity(10)
     :SetFlags("abcd")
     :SetVIP(true)
-    :SetMaxProps(100)
     :Register()
 
 RAdd("root", "Root")
@@ -24,7 +22,6 @@ RAdd("root", "Root")
     :SetImmunity(100)
     :SetFlags("abcdefghijklmnopqrstuvwxyz")
     :SetRoot(true)
-    :SetMaxProps(10000)
     :Register()
 
 

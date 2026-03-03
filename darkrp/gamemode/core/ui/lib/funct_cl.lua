@@ -50,6 +50,7 @@ do
     end)
 end
 do
+    ---@type number
     local FIGMA_RATE = 2
 
     local fontsCache = {}
@@ -57,6 +58,7 @@ do
     local string_Explode = string.Explode
     local surface_CreateFont = surface.CreateFont
 
+    ---@param name string
 
     function sc.Font(name)
         local fontData = string_Explode(':', name)

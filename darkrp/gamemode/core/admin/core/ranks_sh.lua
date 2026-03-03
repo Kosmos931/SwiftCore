@@ -7,6 +7,7 @@ ranks.Teams = ranks.Teams or {}
 
 local Rank = {}
 
+
 function Rank.__index(tbl, key)
     local method = rawget(Rank, key)
     if method then

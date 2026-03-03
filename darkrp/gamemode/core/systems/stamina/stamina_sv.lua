@@ -60,7 +60,7 @@ hook.Add("PlayerSpawn", "SC.Stamina.InitTimer", function(ply)
     local cfg = SC.Config.Stamina
 
     ply:SetStamina(cfg.Max or 100)
-
+    ply:SprintEnable()
     timer.Create(timerName, 0.1, 0, function()
         if not IsValid(ply) or not ply:Alive() or ply:InVehicle() then
             timer.Remove(timerName)
@@ -95,11 +95,16 @@ hook.Add("PlayerDisconnected", "SC.Stamina.Cleanup", function(ply)
 end)
 
 hook.Add("SetupMove", "SC.Stamina.JumpBlock", function(ply, mv, cmd)
-    if mv:KeyPressed(IN_JUMP) and ply:IsOnGround() then
+    if IsValid(ply) and mv:KeyPressed(IN_JUMP) and ply:IsOnGround() then
         if ply:GetStamina() < (SC.Config.Stamina.JumpLimit or 10) then
             mv:SetButtons(bit.band(mv:GetButtons(), bit.bnot(IN_JUMP)))
             return
         end
         ply:TakeStamina(SC.Config.Stamina.DrainJump or 5)
+    end
+    if IsValid(ply) and ply:GetStamina() <= 1 then
+        ply:SprintDisable()
+    elseif IsValid(ply) and ply:GetStamina() >= 50 then
+        ply:SprintEnable()
     end
 end)
