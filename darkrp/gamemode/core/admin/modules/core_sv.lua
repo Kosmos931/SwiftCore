@@ -709,7 +709,13 @@ cmd.Create("info", function(ply, args)
     if flags and flags ~= "" then
         notify(ply, "Флаги: " .. flags)
     end
-    
+    if target.GetLevel then
+        local lvl = target:GetLevel()
+        local exp = target:GetExp()
+        local mExp = target:GetMaxExp()
+        notify(ply, "Уровень: " .. lvl)
+        notify(ply, "Опыт: " .. exp .. " / " .. mExp)
+    end
     notify(ply, "Пинг: " .. target:Ping() .. "ms")
     notify(ply, "============================")
 end)
@@ -850,3 +856,79 @@ end)
 :SetHelp('Показать список всех команд')
 :SetIcon('icon16/help.png')
 
+cmd.Create("setlvl", function(ply, args)
+    if not args.target or not args.amount then
+        notify(ply, "Использование: sc setlvl <ник|SteamID> <уровень>")
+        return
+    end
+    
+    local isConsole = not ply or not IsValid(ply) or not ply:IsPlayer()
+    local adminName = isConsole and "Консоль" or GetPlayerName(ply)
+    
+    local target = args.target
+    if not IsValid(target) or not target:IsPlayer() then
+        notifyErr(ply, string.format("Игрок %s не найден.", tostring(args.target)))
+        return
+    end
+    
+    local amount = math.max(1, math.floor(args.amount))
+    
+    target:SetNW2Int("sc_level", amount)
+    target:SetNW2Int("sc_exp", 0)
+    
+    if target.SaveLvl then target:SaveLvl() end
+
+    local targetName = FormatPlayerName(target:Nick(), target:SteamID())
+    local msg = string.format("%s установил уровень %s на %d.", adminName, targetName, amount)
+    
+    if SC.Admin and SC.Admin.Notify and SC.Admin.Notify.AllStaff then
+        SC.Admin.Notify.AllStaff(msg, ply)
+    end
+    
+    notify(target, string.format("%s установил ваш уровень на %d.", adminName, amount))
+end)
+:AddParam('player_entity', 'target')
+:AddParam('number', 'amount')
+:SetFlag('e')
+:SetHelp('Установить уровень игроку')
+:SetIcon('icon16/star.png')
+:AddAlias('setlevel')
+
+cmd.Create("addexp", function(ply, args)
+    if not args.target or not args.amount then
+        notify(ply, "Использование: sc addexp <ник|SteamID> <количество>")
+        return
+    end
+    
+    local isConsole = not ply or not IsValid(ply) or not ply:IsPlayer()
+    local adminName = isConsole and "Консоль" or GetPlayerName(ply)
+    
+    local target = args.target
+    if not IsValid(target) or not target:IsPlayer() then
+        notifyErr(ply, string.format("Игрок %s не найден.", tostring(args.target)))
+        return
+    end
+    
+    local amount = math.floor(args.amount)
+    if amount == 0 then return end
+
+    if target.AddExp then
+        target:AddExp(amount)
+        local targetName = FormatPlayerName(target:Nick(), target:SteamID())
+        local action = amount > 0 and "добавил" or "забрал"
+        local msg = string.format("%s %s %d опыта игроку %s.", adminName, action, math.abs(amount), targetName)
+        
+        if SC.Admin and SC.Admin.Notify and SC.Admin.Notify.AllStaff then
+            SC.Admin.Notify.AllStaff(msg, ply)
+        end
+        
+        notify(target, string.format("%s %s вам %d опыта.", adminName, action, math.abs(amount)))
+    else
+        notifyErr(ply, "Система уровней (AddExp) не загружена!")
+    end
+end)
+:AddParam('player_entity', 'target')
+:AddParam('number', 'amount')
+:SetFlag('e')
+:SetHelp('Добавить опыт игроку')
+:SetIcon('icon16/lightning.png')

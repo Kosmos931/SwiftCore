@@ -1,5 +1,5 @@
 if not SERVER then return end
-
+if SC.Config.Stamina.Enable == false then return end
 --[[
     @return number
 ]]

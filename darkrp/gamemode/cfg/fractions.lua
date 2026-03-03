@@ -22,6 +22,7 @@ TEAM_GHOUL = FAdd("ghoul", "Ghoul")
     :SetRunSpeed(500)
     :SetJumpPower(300)
     :SetRegenHP(true,10)
+    :SetColor(Color(255,0,0))
     :Register()
 
 Frac.AddGroup('Лошки', TEAM_CITIZEN, TEAM_CCG)

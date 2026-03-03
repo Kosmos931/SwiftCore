@@ -1,0 +1,625 @@
+# SwiftCore DarkRP — полная документация (RU)
+
+> Документация собрана по текущему коду гейммода в репозитории. Включены системы, API-функции, команды и примеры использования.
+
+---
+
+## 1) Версии/этапы разработки
+
+По твоему changelog:
+
+- `v0.1.0` — начало.
+- `v0.2.0` — небольшое дополнение.
+- `v0.3.0` — добавлена админка.
+- `v0.4.0` — починены руки.
+- `v0.5.0` — интерфейс + стамина.
+- `v0.6.0` — фундамент своего гейммода, дописана админка, оптимизирован HUD.
+
+> В `init.lua` у `GM.Version` сейчас указано `1.0.0`, это внутриигровая версия в коде.
+
+---
+
+## 2) Архитектура и загрузка
+
+### 2.1 Базовые глобалы
+
+- `SC` — основной namespace.
+- `SC.util`, `SC.cfg` — вспомогательные таблицы.
+- Метатаблицы: `PLAYER`, `ENTITY`, `VECTOR`.
+
+### 2.2 Система инклюдов
+
+Функции загрузки файлов:
+
+- `SC.IncludeSV(path)` — include только на сервере.
+- `SC.IncludeCL(path)` — AddCSLuaFile на сервере / include на клиенте.
+- `SC.IncludeSH(path)` — AddCSLuaFile + include.
+- `SC.include(path)` — авто-выбор по суффиксу `_sv.lua/_cl.lua/_sh.lua`.
+- `SC.include_dir(dir, recursive)` — загрузка всей директории.
+
+### 2.3 Core-модули
+
+Подключаются конфиги и подсистемы:
+
+- Конфиги (`cfg/*.lua`).
+- Системы: деньги, голод, стамина.
+- Фракции.
+- Админка (ранги, API, команды, chat-парсер).
+- UI/HUD.
+
+---
+
+## 3) Конфигурация
+
+Файл: `gamemode/cfg/cfg.lua`
+
+### 3.1 Деньги
+
+- `SC.Config.Money.StartAmount` — стартовый баланс (по умолчанию `1000`).
+
+### 3.2 Игрок
+
+- `SC.Config.Player.WalkSpeed` (`180`)
+- `SC.Config.Player.RunSpeed` (`280`)
+- `SC.Config.Player.JumpPower` (`200`)
+
+### 3.3 Стамина
+
+- `SC.Config.Stamina.Max` (`155`)
+- `SC.Config.Stamina.DrainRun` (`15`)
+- `SC.Config.Stamina.DrainJump` (`15`)
+- `SC.Config.Stamina.RegenWalk` (`5`)
+- `SC.Config.Stamina.RegenIdle` (`10`)
+- `SC.Config.Stamina.RegenAir` (`2`)
+- `SC.Config.Stamina.JumpLimit` (`15`)
+
+### 3.4 Стартовый лодаут
+
+- `SC.Config.Weapons` — оружие, которое выдается при спавне (`physgun`, `physcannon`, `gmod_tool`, `fists`, `medkit`).
+
+### 3.5 Спавны карты
+
+- `SC.Config.Spawns[mapname] = { Vector(...), ... }`
+
+---
+
+## 4) Фракции
+
+Файлы: `core/fractions/core/api_sh.lua`, `api_sv.lua` + файлы конкретных фракций.
+
+### 4.1 Декларативный API фракций
+
+#### Главные функции
+
+- `SC.Fractions.Add(name, displayName)` — создать фракцию (builder-объект).
+- `fraction:Register()` — зарегистрировать фракцию.
+- `SC.Fractions.Get(name)` / `SC.FGet(name)` — получить фракцию.
+- `SC.Fractions.SetBaseFraction(name)` / `SC.FBase()` — базовая фракция.
+- `SC.Fractions.AddGroup(groupName, ...)` — логическая группа фракций.
+- `SC.Fractions.GetGroup(groupName)` — получить группу.
+
+#### Методы фракции (builder)
+
+- `:SetModels(tbl|string)`
+- `:SetWeapons(tbl|string)`
+- `:SetSpawn(Vector|table)` / `:AddSpawn(...)`
+- `:OnSpawn(fn)`
+- `:OnDeath(fn)`
+- `:Other(fn)`
+
+#### Динамические Set-методы
+
+`Fraction.__index` динамически создает методы `Set*`, например:
+
+- `:SetMaxHealth(150)` → поле `MaxHealth`
+- `:SetMaxArmor(50)` → поле `MaxArmor`
+- `:SetRunSpeed(500)` → поле `RunSpeed`
+- `:SetRegenHP(true, 10)` → поле `RegenHP = {true, 10}`
+
+Это позволяет быстро расширять параметры без переписывания класса.
+
+### 4.2 Серверные операции с фракцией игрока
+
+- `SC.FSetPly(ply, fractionName)` / `frac.SetPlayerFraction(...)`
+  - ставит `NWString` фракции,
+  - меняет `team`,
+  - модель/руки,
+  - HP/Armor,
+  - скорость/прыжок,
+  - выдает лодаут,
+  - сохраняет в БД.
+
+- `SC.FSpawn(fraction)` / `frac.GetSpawnPoint(...)`
+  - выбирает точку: сначала фракционная, потом `SC.Config.Spawns[map]`.
+
+- `SC.FGive(ply, fraction)` / `frac.GiveLoadout(...)`
+  - сбрасывает оружие и выдает базовое + фракционное.
+
+### 4.3 Методы PLAYER
+
+- `PLAYER:SetFraction(fractionName)`
+- `PLAYER:GetFraction()`
+- `PLAYER:GetFractionName()`
+- `PLAYER:GetFractionData()`
+- `PLAYER:IsInFraction(name|table)`
+
+### 4.4 Текущие фракции в конфиге
+
+- `citizen` (TEAM_CITIZEN)
+- `ccg` (TEAM_CCG)
+- `ghoul` (TEAM_GHOUL)
+
+Пример объявления:
+
+```lua
+TEAM_CCG = FAdd("ccg", "CCG")
+    :SetMaxHealth(150)
+    :SetMaxArmor(50)
+    :SetDescription("...")
+    :Register()
+```
+
+---
+
+## 5) Экономика (Money)
+
+Файлы: `core/systems/money/money_sh.lua`, `money_sv.lua`, `money_cl.lua`.
+
+### API
+
+- `PLAYER:GetMoney()`
+- `PLAYER:SetMoney(amount)`
+- `PLAYER:AddMoney(amount)`
+- `PLAYER:TakeMoney(amount)`
+- `PLAYER:HasMoney(amount)`
+
+### Поведение
+
+- Деньги хранятся через `NWInt` ключ `SC_Money`.
+- На сервере `SetMoney` синхронизирует значение в `SC.Database`.
+
+### Пример
+
+```lua
+if ply:HasMoney(500) then
+    ply:TakeMoney(500)
+else
+    ply:ChatPrint("Недостаточно денег")
+end
+```
+
+---
+
+## 6) Голод (Hunger)
+
+Файлы: `core/systems/hunger/*.lua`.
+
+### API
+
+- `PLAYER:GetHunger()`
+- `PLAYER:SetHunger(amount)`
+- `PLAYER:AddHunger(amount)`
+- `PLAYER:TakeHunger(amount)`
+- `PLAYER:IsHungry()`
+- `PLAYER:GetHungerPercent()`
+
+### Логика
+
+- `SC.Hunger.Max = 100`
+- Таймер голода на игрока при `PlayerSpawn`.
+- Если голод `<= 0`, наносится периодический урон.
+
+### Пример
+
+```lua
+if ply:IsHungry() then
+    ply:ChatPrint("Нужно поесть")
+end
+```
+
+---
+
+## 7) Стамина (Stamina)
+
+Файлы: `core/systems/stamina/*.lua`.
+
+### API
+
+- `PLAYER:GetStamina()`
+- `PLAYER:SetStamina(amount)`
+- `PLAYER:AddStamina(amount)`
+- `PLAYER:TakeStamina(amount)`
+- `PLAYER:GetStaminaPercent()`
+
+### Логика
+
+- Уходит при спринте и прыжке.
+- Восстанавливается в движении/в покое/в воздухе по разным коэффициентам.
+- При `SetupMove` прыжок блокируется при низкой стамине (`JumpLimit`).
+
+### Пример
+
+```lua
+if ply:GetStaminaPercent() < 20 then
+    ply:ChatPrint("Ты выдохся")
+end
+```
+
+---
+
+## 8) База данных игроков (SC.Database)
+
+Файл: `core/main/db_sv.lua`.
+
+### Таблица
+
+`sc_players`:
+
+- `steamid` (PK)
+- `money`
+- `hunger`
+- `name`
+- `fraction`
+
+### Функции
+
+- `db.Initialize()` — создание таблицы.
+- `db.LoadPlayer(ply)` — загрузка игрока.
+- `db.SavePlayer(ply)` — сохранение.
+- `db.ApplyPlayerData(ply)` — применение данных к entity.
+- `db.GetPlayerData(ply)` — получить кеш-таблицу.
+
+### Алиасы
+
+- `SC.DBLoad`, `SC.DBSave`, `SC.DBGet`.
+
+### Автосейв
+
+- Очередь сохранения + таймер `db.AutoSave` (каждые 60 сек).
+
+---
+
+## 9) Админ-система
+
+Файлы: `core/admin/*`.
+
+## 9.1 Ранги
+
+Файл: `cfg/admin_ranks.lua` + `core/admin/core/ranks_sh.lua`.
+
+Базовые ранги:
+
+- `user`
+- `vip`
+- `root`
+
+### API рангов (SC.AdminRanks)
+
+- `SC.AdminRanks.Add(name, displayName)`
+- `rank:SetRankLevel(level)`
+- `rank:SetImmunity(immunity)`
+- `rank:SetFlags(flags)`
+- `rank:SetVIP(bool)`
+- `rank:SetRoot(bool)`
+- `rank:Register()`
+- `SC.AdminRanks.Get(name)`
+- `SC.AdminRanks.Exists(name)`
+- `SC.AdminRanks.GetAll()`
+- `SC.AdminRanks.CanTarget(adminPly, targetPly)`
+
+### Методы PLAYER
+
+- `PLAYER:GetAdminRank()`
+- `PLAYER:IsRoot()`
+- `PLAYER:IsVIP()`
+- `PLAYER:HasAdminFlag(flag)`
+- `PLAYER:HasAnyAdminFlags(flags)`
+
+## 9.2 API админки (SC.Admin)
+
+Файл: `core/admin/core/api_sv.lua`.
+
+- `SC.Admin.GetRank(ply)`
+- `SC.Admin.GetFlags(ply)`
+- `SC.Admin.SetRank(ply, rank)`
+- `SC.Admin.SetFlags(ply, flags)`
+- `SC.Admin.HasFlag(ply, flag)`
+- `SC.Admin.HasAnyFlag(ply, flags)`
+- `SC.Admin.HasAllFlags(ply, flags)`
+- `SC.Admin.GetRankLevel(ply)`
+- `SC.Admin.HasRankOrHigher(ply, minRank)`
+- `SC.Admin.IsAdmin(ply)`
+- `SC.Admin.IsHigherRank(adminPly, targetPly)`
+- `SC.Admin.LoadPlayer(ply)`
+- `SC.Admin.SavePlayer(ply)`
+
+## 9.3 Админ-БД (SC.AdminDB)
+
+Файл: `core/admin/db_sv.lua`.
+
+Таблицы:
+
+- `sc_admin` — ранг/флаги/временный ранг.
+- `sc_bans` — баны.
+
+Функции:
+
+- `db.Initialize()`
+- `db.Load(ply)`
+- `db.Save(ply)`
+- `db.IsBanned(steamid)`
+- `db.Ban(steamid, reason, adminSteamid, duration, targetName, adminName)`
+- `db.Unban(steamid)`
+
+## 9.4 Уведомления
+
+Файл: `core/admin/core/notify_sv.lua`.
+
+- `SC.Admin.Notify.Send(ply, msg)`
+- `SC.Admin.Notify.Error(ply, msg)`
+- `SC.Admin.Notify.AllStaff(msg, exceptPly)`
+
+## 9.5 Командный движок
+
+Файл: `core/admin/core/commands_sv.lua`.
+
+### Реестр команд
+
+- `SC.AdminCommands.Create(name, callback)`
+- `SC.AdminCommands.Get(name)`
+- `SC.AdminCommands.Exists(name)`
+- `SC.AdminCommands.GetTable()`
+- `SC.AdminCommands.Parse(ply, cmdName, args)`
+- `SC.AdminCommands.Run(ply, cmdName, args)`
+- `SC.AdminCommands.FindPlayer(identifier)`
+
+### Параметры/парсеры
+
+- `SC.AdminCommands.Param(name):Parse(function...)`
+- Встроенные типы:
+  - `player_entity`
+  - `player_steamid`
+  - `time` (`10mi`, `1h`, `2d`, `1mo`)
+  - `string`
+  - `number`
+  - `rank`
+  - `fraction`
+
+### Методы объекта команды
+
+- `:AddArg(param, key, flag)` / `:AddParam(...)`
+- `:SetFlag(flag)`
+- `:SetHelp(text)`
+- `:SetIcon(iconPath)`
+- `:AddAlias(alias)`
+
+---
+
+## 10) ВСЕ команды (консоль + чат)
+
+## 10.1 Обертки запуска команд
+
+- Консоль: `sc`, `badmin`, `_sc`
+- Чат: `/command ...` и `!command ...`
+
+Примеры:
+
+- `sc help`
+- `sc setmoney Player 5000`
+- `/ban "Player Name" 1h flood`
+- `!setrank STEAM_0:1:123456 vip 10mi`
+
+## 10.2 Команды фракций
+
+- `sc_listfractions`
+  - выводит список доступных фракций.
+
+## 10.3 Админ-команды (из core модуля)
+
+1. `sc setrank <target> <rank> [time] [exp_rank]`
+   - Флаг: `a`
+   - Ставит ранг (возможен временный).
+
+2. `sc ban <target> <time> <reason>`
+   - Флаг: `b`
+   - Бан игрока на указанное время.
+
+3. `sc perma <target> <reason>`
+   - Флаг: `b`
+   - Перманентный бан.
+
+4. `sc kick <target> <reason>`
+   - Флаг: `c`
+   - Кик игрока.
+
+5. `sc setmoney <target> <amount>`
+   - Флаг: `d`
+   - Установить деньги.
+
+6. `sc sethunger <target> <amount>`
+   - Флаг: `e`
+   - Установить голод.
+
+7. `sc sethealth <target> <amount>`
+   - Флаг: `e`
+   - Установить здоровье.
+
+8. `sc setarmor <target> <amount>`
+   - Флаг: `e`
+   - Установить броню.
+
+9. `sc info <target>`
+   - Флаг: `f`
+   - Информация об игроке.
+
+10. `sc setfraction <target> <fraction>`
+    - Флаг: `g`
+    - Сменить фракцию.
+    - Алиас: `sc setfrac ...`
+
+11. `sc testflags [target]`
+    - Флаг: нет
+    - Отладка флагов/ранга.
+
+12. `sc help`
+    - Флаг: нет
+    - Печатает доступные команды.
+
+---
+
+## 11) Hooks (основные)
+
+### Глобальные хуки GM
+
+- `GM:PlayerSpawn` — установка фракции, спавна, параметров.
+- `GM:PlayerDeath` — вызов death-хуков фракции.
+- `GM:InitPostEntity` — физика/очистка карты.
+- `GM:GetFallDamage` — формула урона от падения.
+- `GM:HUDShouldDraw` (клиент) — отключение стандартных HUD-элементов.
+
+### Системные хуки
+
+- Hunger: `PlayerSpawn`, `PlayerDeath`, `PlayerDisconnected`.
+- Stamina: `PlayerSpawn`, `PlayerDeath`, `PlayerDisconnected`, `SetupMove`.
+- Admin commands/chat: `PlayerDisconnected`, `PlayerInitialSpawn`, `InitPostEntity`, `PlayerSay`.
+- DB: `Initialize`, `PlayerInitialSpawn`, `PlayerDisconnected`, `Think`.
+
+---
+
+## 12) UI/HUD
+
+Файлы: `core/ui/hud/main_cl.lua`, `core/ui/lib/funct_cl.lua`, `core/ui/lib/rndx_cl.lua`.
+
+### Что есть
+
+- Кастомный HUD (HP/Armor/Hunger/Stamina/Money).
+- Кастомные шрифты/масштабирование (`sc.w/sc.h`).
+- Библиотека отрисовки rounded/blur/shadow (`rndx`).
+
+### Полезные UI-функции
+
+- `sc.w(px)`, `sc.h(px)`, `sc.s(px)` — адаптивный скейл.
+- `sc.Font(name:size)` — получение шрифта.
+- `sc.Color(hex, alpha)` — цвет из hex.
+- `rndx.Draw*` — набор примитивов/blur/shadows.
+
+---
+
+## 13) Примеры практического использования API
+
+## 13.1 Добавить новую фракцию
+
+```lua
+TEAM_MEDIC = SC.FAdd("medic", "Медик")
+    :SetMaxHealth(120)
+    :SetMaxArmor(25)
+    :SetWeapons({"weapon_medkit", "weapon_pistol"})
+    :SetWalkSpeed(190)
+    :SetRunSpeed(300)
+    :OnSpawn(function(ply, fraction)
+        ply:ChatPrint("Вы зашли за медика")
+    end)
+    :Register()
+```
+
+## 13.2 Выдать игроку награду
+
+```lua
+hook.Add("OnNPCKilled", "RewardMoney", function(npc, attacker)
+    if IsValid(attacker) and attacker:IsPlayer() and attacker.AddMoney then
+        attacker:AddMoney(150)
+    end
+end)
+```
+
+## 13.3 Создать новую админ-команду
+
+```lua
+SC.AdminCommands.Create("freeze", function(ply, args)
+    local target = args.target
+    if not IsValid(target) then return end
+    target:Lock()
+    if SC.Admin and SC.Admin.Notify then
+        SC.Admin.Notify.AllStaff((ply:Nick() .. " заморозил " .. target:Nick()), ply)
+    end
+end)
+:AddParam("player_entity", "target")
+:SetFlag("c")
+:SetHelp("Заморозить игрока")
+:SetIcon("icon16/lock.png")
+```
+
+---
+
+## 14) Быстрый справочник по функциям (по подсистемам)
+
+## GameMode
+
+- `SC.AddFastDLDir`
+- `GM:ShowHelp`
+- `GM:GetFallDamage`
+- `GM:PlayerSpawn`
+- `GM:PlayerDeath`
+- `GM:InitPostEntity`
+- `GM:HUDShouldDraw`
+
+## Database
+
+- `SC.DBLoad`, `SC.DBSave`, `SC.DBGet`
+- `db.Initialize`, `db.LoadPlayer`, `db.SavePlayer`, `db.ApplyPlayerData`, `db.GetPlayerData`
+
+## Fractions
+
+- `SC.FAdd`, `SC.FGet`, `SC.FSetPly`, `SC.FSpawn`, `SC.FGive`, `SC.FBase`, `SC.FGetPly`
+- `PLAYER:SetFraction`, `PLAYER:GetFraction`, `PLAYER:GetFractionName`, `PLAYER:GetFractionData`, `PLAYER:IsInFraction`
+- `Fraction:New`, `Fraction:SetModels`, `Fraction:SetWeapons`, `Fraction:SetSpawn`, `Fraction:OnSpawn`, `Fraction:OnDeath`, `Fraction:Register`
+
+## Money
+
+- `PLAYER:GetMoney`, `PLAYER:SetMoney`, `PLAYER:AddMoney`, `PLAYER:TakeMoney`, `PLAYER:HasMoney`
+
+## Hunger
+
+- `PLAYER:GetHunger`, `PLAYER:SetHunger`, `PLAYER:AddHunger`, `PLAYER:TakeHunger`, `PLAYER:IsHungry`, `PLAYER:GetHungerPercent`
+
+## Stamina
+
+- `PLAYER:GetStamina`, `PLAYER:SetStamina`, `PLAYER:AddStamina`, `PLAYER:TakeStamina`, `PLAYER:GetStaminaPercent`
+
+## Admin
+
+- `SC.Admin.GetRank`, `SC.Admin.GetFlags`, `SC.Admin.SetRank`, `SC.Admin.SetFlags`
+- `SC.Admin.HasFlag`, `SC.Admin.HasAnyFlag`, `SC.Admin.HasAllFlags`
+- `SC.Admin.GetRankLevel`, `SC.Admin.HasRankOrHigher`, `SC.Admin.IsAdmin`, `SC.Admin.IsHigherRank`
+- `SC.Admin.LoadPlayer`, `SC.Admin.SavePlayer`
+
+## Admin Ranks
+
+- `SC.AdminRanks.Add`, `SC.AdminRanks.Get`, `SC.AdminRanks.Exists`, `SC.AdminRanks.GetAll`, `SC.AdminRanks.CanTarget`
+
+## Admin Commands Core
+
+- `SC.AdminCommands.Create`, `Get`, `Exists`, `GetTable`, `FindPlayer`, `Parse`, `Run`, `Param(...):Parse(...)`
+- `cmd_mt:AddArg/AddParam`, `SetFlag`, `SetHelp`, `SetIcon`, `AddAlias`
+
+## UI
+
+- `sc.w`, `sc.h`, `sc.s`, `sc.Font`, `sc.Color`
+- `rndx.Draw`, `DrawOutlined`, `DrawTexture`, `DrawMaterial`, `DrawCircle*`, `DrawBlur`, `DrawShadows*`, `SetFlag`, `SetDefaultShape`
+
+---
+
+## 15) Что можно улучшить дальше (как roadmap)
+
+- Разделить документацию на `docs/` по модулям (admin, fractions, systems, ui).
+- Добавить автогенерацию docs из Lua-комментариев (`---@param` + `---@return`).
+- Добавить список ошибок/known issues.
+- Добавить changelog в репозиторий (`CHANGELOG.md`) с версиями `v0.1.0`…`v0.6.0`.
+
+---
+
+Если хочешь, следующим шагом могу сделать **v0.6.1 doc pack**:
+1) отдельный `docs/Admin.md`,
+2) `docs/Fractions.md`,
+3) `docs/API_REFERENCE.md` с алфавитным индексом всех функций,
+4) `CHANGELOG.md` в красивом формате Keep a Changelog.

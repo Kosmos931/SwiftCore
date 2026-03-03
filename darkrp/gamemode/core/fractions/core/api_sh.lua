@@ -13,6 +13,7 @@ local Fraction = {}
 --[[
     Автоматически создает параметры при первом обращении
     При вызове :SetPropertyName(value) создается метод автоматически
+    fraction = ply:GetFractionData() ВАЖНО!!! не ply:GetFraction()
     @example fraction:SetWalkSpeed(180)  создаст метод автоматически и установит self.WalkSpeed = 180
     @example fraction:SetChototam(1000)  создаст метод автоматически и установит self.Chototam = 1000
     @example local value = fraction.WalkSpeed or 180  получение значения (прямой доступ)

@@ -11,13 +11,17 @@ cfg.Player.RunSpeed = 280
 cfg.Player.JumpPower = 200
 
 cfg.Stamina = cfg.Stamina or {}
-cfg.Stamina.Max = 155
+cfg.Stamina.Enable = true -- restart
+cfg.Stamina.Max = 1000
 cfg.Stamina.DrainRun = 15
 cfg.Stamina.DrainJump = 15
 cfg.Stamina.RegenWalk = 5
 cfg.Stamina.RegenIdle = 10
 cfg.Stamina.RegenAir = 2
 cfg.Stamina.JumpLimit = 15
+
+// cfg.Level = cfg.Level or {}
+// cfg.Level.Enable = true
 
 cfg.Weapons = cfg.Weapons or  {
     "weapon_physgun",

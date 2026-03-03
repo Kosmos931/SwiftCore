@@ -48,92 +48,59 @@ local function segment(x,y,w,h,space,count,cur,max,col,bg)
     end
 end
 
+local showStamina = SC.Config.Stamina.Enable
+
 function GM:HUDPaint()
     InitResources()
     if not resources.initialized then return end
     
-    local f = resources.fonts
-    local c = resources.colors
-
+    local f, c = resources.fonts, resources.colors
     ply = ply or LocalPlayer()
     if not IsValid(ply) then return end
-    --[[        LEFT DOWN        ]]--
+    --[[         LOCALS         ]]--
     local hp, mhp = ply:Health(), ply:GetMaxHealth()
     local ar, mar = ply:Armor(), ply:GetMaxArmor()
-    local st = ply:GetStamina()
-    local hr = ply:GetHunger()
+    local st = (showStamina and ply.GetStamina) and ply:GetStamina() or 0
+    local hr = ply:GetHunger() or 0
 
     lerphp = sc.lerpvalue(lerphp, hp, mhp)
     lerpar = sc.lerpvalue(lerpar, ar, mar)
-    lerpst = sc.lerpvalue(lerpst, st, SC.Config.Stamina.Max)
+    lerpst = showStamina and sc.lerpvalue(lerpst, st, (SC.Config.Stamina and SC.Config.Stamina.Max or 100)) or 0
     lerphr = sc.lerpvalue(lerphr, hr, 100)
-
-    RNDX.DrawShadows(0, sc.w(38), sc.h(904), sc.w(327), sc.h(110), c.black25, 15,15*1.2,1,rndx.BLUR)
-
+    --[[         BG         ]]--
+    RNDX.DrawShadows(0, sc.w(38), sc.h(904), sc.w(327), sc.h(110), c.black25, 15, 15*1.2)
+    RNDX.Draw(0, sc.w(38), sc.h(904), sc.w(327), sc.h(110), c.main_bg,rndx.BLUR)
     RNDX.Draw(0, sc.w(38), sc.h(904), sc.w(327), sc.h(110), c.main_bg)
     RNDX.Draw(0, sc.w(38), sc.h(904), sc.w(3), sc.h(110), c.red_line)
-
-    draw.SimpleText('ARMOR', f.exo10, sc.w(241), sc.h(964), c.label, TEXT_ALIGN_CENTER)
-    draw.SimpleText(math.Round(lerpar) .. '%', f.orb12, sc.w(241), sc.h(977), c.armor, TEXT_ALIGN_CENTER)
-    RNDX.Draw(0, sc.w(211), sc.h(964), sc.w(2), sc.h(29), c.separator)
-
-    draw.SimpleText('HUNGER', f.exo10, sc.w(304), sc.h(964), c.label, TEXT_ALIGN_CENTER)
-    draw.SimpleText(math.Round(lerphr) .. '%', f.orb12, sc.w(304), sc.h(977), c.hunger, TEXT_ALIGN_CENTER)
-    RNDX.Draw(0, sc.w(274), sc.h(964), sc.w(2), sc.h(29), c.separator)
-
+    --[[         HP         ]]--
     draw.SimpleText('HP', f.exo12, sc.w(62), sc.h(925), c.label)
     draw.SimpleText(math.Round(lerphp) .. '/' .. mhp, f.orb12, sc.w(345), sc.h(925), c.white_text, TEXT_ALIGN_RIGHT)
-
     segment(sc.w(62), sc.h(943), sc.w(55), sc.h(4), 2, 5, 1, 1, c.seg_bg)
     segment(sc.w(62), sc.h(943), sc.w(55), sc.h(4), 2, 5, lerphp, mhp, c.hp_bar)
-
-    draw.SimpleText('STAMINA', f.exo12, sc.w(62), sc.h(965), c.label)
-    draw.SimpleText(math.Round(lerpst), f.orb12, sc.w(195), sc.h(965), c.white_text, TEXT_ALIGN_RIGHT)
-
+    --[[         STAMINA OR ARMOR         ]]--
+    draw.SimpleText(showStamina and 'STAMINA' or 'ARMOR', f.exo12, sc.w(62), sc.h(965), c.label)
+    draw.SimpleText(math.Round(showStamina and lerpst or lerpar) .. (showStamina and '' or '%'), f.orb12, sc.w(195), sc.h(965), showStamina and c.white_text or c.armor, TEXT_ALIGN_RIGHT)
     segment(sc.w(62), sc.h(983), sc.w(26), sc.h(3), 1, 5, 1, 1, c.seg_bg)
-    segment(sc.w(62), sc.h(983), sc.w(26), sc.h(3), 1, 5, lerpst, SC.Config.Stamina.Max, c.st_bar)
-    --[[        LEFT UP        ]]--
-    RNDX.DrawShadows(0, sc.w(41), sc.h(34), sc.w(58), sc.h(25), c.lvl_sh, 12,12*1.2,1,rndx.BLUR)
-
+    segment(sc.w(62), sc.h(983), sc.w(26), sc.h(3), 1, 5, showStamina and lerpst or lerpar, showStamina and SC.Config.Stamina.Max or mar, showStamina and c.st_bar or c.armor)
+    --[[         ARMOR OR HUNGER         ]]--
+    draw.SimpleText(showStamina and 'ARMOR' or 'HUNGER', f.exo10, sc.w(241), sc.h(964), c.label, TEXT_ALIGN_CENTER)
+    draw.SimpleText(math.Round(showStamina and lerpar or lerphr) .. '%', f.orb12, sc.w(241), sc.h(977), showStamina and c.armor or c.hunger, TEXT_ALIGN_CENTER)
+    RNDX.Draw(0, sc.w(211), sc.h(964), sc.w(2), sc.h(29), c.separator)
+    --[[         HUNGER         ]]--
+    local _ = showStamina and (function()
+        draw.SimpleText('HUNGER', f.exo10, sc.w(304), sc.h(964), c.label, TEXT_ALIGN_CENTER)
+        draw.SimpleText(math.Round(lerphr) .. '%', f.orb12, sc.w(304), sc.h(977), c.hunger, TEXT_ALIGN_CENTER)
+        RNDX.Draw(0, sc.w(274), sc.h(964), sc.w(2), sc.h(29), c.separator)
+    end)()
+    --[[         BG         ]]--
+    RNDX.DrawShadows(0, sc.w(41), sc.h(34), sc.w(58), sc.h(25), c.lvl_sh, 12, 12*1.2, 1, rndx.BLUR)
     RNDX.Draw(0, sc.w(41), sc.h(34), sc.w(58), sc.h(25), c.lvl_bg)
-    draw.SimpleText('LVL 18', f.exo_b12, sc.w(70), sc.h(40), color_white, TEXT_ALIGN_CENTER)
-    draw.SimpleText(ply:GetFractionName(), f.orb2_10, sc.w(110), sc.h(34), c.frac)
+    --[[         INFO         ]]--
+    draw.SimpleText('LVL ' .. ply:GetLevel(), f.exo_b12, sc.w(70), sc.h(40), color_white, TEXT_ALIGN_CENTER)
+    draw.SimpleText(ply:GetFractionName(), f.orb2_10, sc.w(110), sc.h(34), ply:GetFractionData().Color or c.frac)
     draw.SimpleText(ply:Nick(), f.exo16, sc.w(110), sc.h(41), color_white)
-
+    --[[         MONEY         ]]--
     RNDX.Draw(0, sc.w(45), sc.h(70), sc.w(2), sc.h(13), c.mon_sep)
     draw.SimpleText('Money: ', f.orb2_10, sc.w(55), sc.h(71), c.mon_lbl)
-    
-    surface.SetFont(f.orb2_10)
-    local tw, _ = surface.GetTextSize('Money: ')
-    draw.SimpleText(string.Comma(ply:GetMoney()) .. ' $', f.orb10, sc.w(55) + tw, sc.h(71), c.mon_val)
+    draw.SimpleText(string.Comma(ply:GetMoney()) .. ' $', f.orb10, sc.w(55) + sc.GetTextSize('Money: ',f.orb2_10), sc.h(71), c.mon_val)
 end
-// local maxDist = 400 * 400
-
-// hook.Add("PostDrawTranslucentRenderables", "Door_Load", function()
-//     local ply = LocalPlayer()
-//     if not IsValid(ply) then return end
-//     local plyPos = ply:GetPos()
-//     for _, door in ipairs(ents.FindByClass("prop_door_rotating")) do
-//         if not IsValid(door) then continue end
-//         local doorPos = door:GetPos()
-//         if plyPos:DistToSqr(doorPos) > maxDist then continue end
-//         local ang = door:GetAngles()
-//         local ang2 = Angle(ang.p, ang.y, ang.r)
-//         local offset = ang:Up() + ang:Forward() * -1.2 + ang:Right() * -23
-//         ang:RotateAroundAxis(ang:Forward(), 90)
-//         ang:RotateAroundAxis(ang:Right(), 90)
-//         local offset2 = ang2:Up() + ang2:Forward() * 1.2 + ang2:Right() * -23
-//         ang2:RotateAroundAxis(ang2:Forward(), -90)
-//         ang2:RotateAroundAxis(ang2:Up(), -180)
-//         ang2:RotateAroundAxis(ang2:Right(), 90)
-
-//         cam.Start3D2D(doorPos + offset, ang, 0.07)
-//             draw.SimpleText("f7ogf087e0h7hvsd8b790", "DermaDefault", 0, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-//         cam.End3D2D()
-
-//         cam.Start3D2D(doorPos + offset2, ang2, 0.07)
-//             RNDX.Draw(0, -215, -143, 430, 286, sc.Color('5AA0F1'))
-//             RNDX.Draw(0, -213, -137, 426, 278, sc.Color('030405'))
-//         cam.End3D2D()
-//     end
-// end)

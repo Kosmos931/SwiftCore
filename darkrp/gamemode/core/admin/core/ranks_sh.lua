@@ -6,7 +6,29 @@ ranks.List = ranks.List or {}
 ranks.Teams = ranks.Teams or {}
 
 local Rank = {}
-Rank.__index = Rank
+
+function Rank.__index(tbl, key)
+    local method = rawget(Rank, key)
+    if method then
+        return method
+    end
+    if type(key) == "string" and string.find(key, "^Set") then
+        local propName = string.sub(key, 4)
+        local param = function(self, ...)
+            local args = {...}
+            if #args == 1 then
+                self[propName] = args[1]
+            else
+                self[propName] = args
+            end
+            return self
+        end
+        Rank[key] = param
+        return param
+    end
+    
+    return nil
+end
 
 function Rank:New(name, displayName)
     local obj = setmetatable({}, Rank)
@@ -98,7 +120,10 @@ function PLAYER:IsVIP()
     local data = ranks.GetPlayerRankData(self)
     return data and data.IsVip or false
 end
-
+function PLAYER:GetRankData()
+    if not IsValid(self) then return nil end
+    return SC.Admin.Ranks.GetPlayerRankData(self)
+end
 function Rank:HasFlag(flag)
     if self.IsRootS then return true end
     return string.find(self.Flags or "", string.lower(flag or ""), 1, true) ~= nil

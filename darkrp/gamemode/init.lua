@@ -8,28 +8,15 @@ AddCSLuaFile('cl_init.lua')
 AddCSLuaFile('sh_init.lua')
 include('sh_init.lua')
 function SC.AddFastDLDir(dir)
-
 	local Dir = (GM or GAMEMODE).Folder .. "/content/" .. dir .. "/*"
 	local Files, Folders = file.Find(Dir, "GAME")
-
 	// Msg("Adding recursive FastDL for directory -> ", Dir)
-
 	for k, v in next, Folders do
-
 		SC.AddFastDLDir(dir .. "/" .. v)
-
 	end
-
 	for k, v in next, Files do
-
 		if not v:find(".", 1, true) then continue end
-	
-		// if NoDL then
-			resource.AddFile(dir .. "/" .. v)
-		// else
-			// resource.AddFile(dir .. "/" .. v)
-		// end
-
+		resource.AddFile(dir .. "/" .. v)
 	end
 
 end

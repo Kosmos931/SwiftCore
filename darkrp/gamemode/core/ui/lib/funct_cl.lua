@@ -50,7 +50,6 @@ do
     end)
 end
 do
-    ---@type number
     local FIGMA_RATE = 2
 
     local fontsCache = {}
@@ -58,7 +57,6 @@ do
     local string_Explode = string.Explode
     local surface_CreateFont = surface.CreateFont
 
-    ---@param name string
 
     function sc.Font(name)
         local fontData = string_Explode(':', name)
@@ -131,6 +129,6 @@ do
     end
 
     function sc.lerpvalue(val, current, max)
-        return sc.lerpto(val, current, 150) 
+        return sc.lerpto(val, current, max) 
     end
 end

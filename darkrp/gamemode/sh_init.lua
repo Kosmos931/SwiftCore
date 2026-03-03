@@ -53,54 +53,48 @@ SC.IncludeSH('cfg/shop.lua')
 
 SC.IncludeSH('core/ui/lib/rndx_cl.lua')
 SC.include_dir('darkrp/gamemode/core', true)
-// local toolsWhitelist = {
-//     ["weld"] = {
-//         ["root"] = true,
-//         ["admin"] = true,
-//         ["vip"] = true
-//     },
-//     ["axis"] = {
-//         ["root"] = true
-//     },
-//     ["dynamite"] = {
-//         ["root"] = true,
-//         ["admin"] = true
-//     }
-// }
+local toolsToHide = {
+    axis = true,
+    balloon = true,
+    ballsocket = true,
+    camera = true,
+    creator = true,
+    duplicator = true,
+    dynamite = true,
+    editentity = true,
+    elastic = true,
+    emitter = true,
+    example = true,
+    eyeposer = true,
+    faceposer = true,
+    finger = true,
+    hoverball = true,
+    hydraulic = true,
+    inflator = true,
+    lamp = true,
+    leafblower = true,
+    light = true,
+    motor = true,
+    muscle = true,
+    paint = true,
+    physprop = true,
+    pulley = true,
+    rope = true,
+    slider = true,
+    thruster = true,
+    trails = true,
+    wheel = true,
+    winch = true
+}
+hook.Add("PopulateToolMenu", "HideToolsFromMenu", function()
+    local toolgun = weapons.GetStored("gmod_tool")
+    if not toolgun or not toolgun.Tool then return end
 
-// hook.Add("InitPostEntity", "HideWhitelistedTools", function()
-//     for toolName, allowedGroups in pairs(toolsWhitelist) do
-//         if weapons.GetStored("gmod_tool") and weapons.GetStored("gmod_tool").Tool[toolName] then
-//             weapons.GetStored("gmod_tool").Tool[toolName].AddToMenu = false
-//         end
-//     end
-// end)
-// local tools = {
-//     ["weld"] = {
-//         ["root"] = true,
-//         ["admin"] = true,
-//         ["vip"] = true
-//     },
-//     ["axis"] = {
-//         ["root"] = true
-//     },
-//     ["dynamite"] = {
-//         ["root"] = true,
-//         ["admin"] = true
-//     }
-// }
-
-// hook.Add("CanTool", "AdvancedToolRestrict", function(ply, _, tool)
-//     local toolData = tools[tool]
-//     if toolData then
-//         local userGroup = ply:GetAdminRank() and ply:GetAdminRank():lower() or "unknown"
-//         if not toolData[userGroup] then
-//             print(string.format("[TOOLS] %s (%s) пытался использовать запрещенный инструмент: %s", ply:Nick(), userGroup, tool))
-//             ply:ChatPrint("🚫 Доступ к инструменту '" .. tool .. "' запрещен для группы '" .. userGroup .. "'")
-//             return false
-//         end
-//         print(string.format("[TOOLS] %s (%s) использовал инструмент: %s", ply:Nick(), userGroup, tool))
-//     end
-    
-//     return true
-// end)
+    for name, data in pairs(toolgun.Tool) do
+        if toolsToHide[name] then
+            data.AddToMenu = false
+        end
+    end
+end)
+function GM:AddGamemodeToolMenuCategories()
+end

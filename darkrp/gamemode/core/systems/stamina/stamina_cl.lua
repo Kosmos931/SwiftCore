@@ -1,4 +1,5 @@
 if not CLIENT then return end
+if SC.Config.Stamina.Enable == false then return end
 
 --[[
     @return number
