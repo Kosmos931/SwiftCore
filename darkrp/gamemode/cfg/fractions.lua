@@ -5,7 +5,7 @@ TEAM_CITIZEN = FAdd("citizen", "Гражданин")
     :SetMaxHealth(100)
     :SetMaxArmor(0)
     :SetDescription("Обычный гражданин города. Не имеет особых способностей, но может свободно перемещаться и взаимодействовать с другими игроками.")
-    :SetSpawn(Vector(0, 110, 0))
+    --:SetSpawn(Vector(0, 110, 0))
     :SetWeapons({"weapon_pistol"})
     :Register()
 

@@ -50,6 +50,7 @@ SC.IncludeSH('cfg/cfg.lua')
 SC.IncludeSH('cfg/fractions.lua')
 SC.IncludeSH('cfg/admin_ranks.lua')
 SC.IncludeSH('cfg/shop.lua')
+SC.IncludeSH('cfg/doors.lua')
 
 SC.IncludeSH('core/ui/lib/rndx_cl.lua')
 SC.include_dir('darkrp/gamemode/core', true)

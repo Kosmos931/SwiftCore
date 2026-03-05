@@ -28,7 +28,8 @@ cfg.Weapons = cfg.Weapons or  {
     "weapon_physcannon",
     "gmod_tool",
     "weapon_fists",
-    "weapon_medkit"
+    "weapon_medkit",
+    "weapon_door_keys"
 }
 
 cfg.Spawns = cfg.Spawns or {
