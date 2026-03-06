@@ -97,7 +97,7 @@ function GM:HUDPaint()
     RNDX.Draw(0, sc.w(41), sc.h(34), sc.w(58), sc.h(25), c.lvl_bg)
     --[[         INFO         ]]--
     draw.SimpleText('LVL ' .. ply:GetLevel(), f.exo_b12, sc.w(70), sc.h(40), color_white, TEXT_ALIGN_CENTER)
-    draw.SimpleText(ply:GetFractionName(), f.orb2_10, sc.w(110), sc.h(34), ply:GetFractionData().Color or c.frac)
+    draw.SimpleText(ply:GetFractionName(), f.orb2_10, sc.w(110), sc.h(34), ply:GetFractionData() and ply:GetFractionData().Color or c.frac)
     draw.SimpleText(ply:Nick(), f.exo16, sc.w(110), sc.h(41), color_white)
     --[[         MONEY         ]]--
     RNDX.Draw(0, sc.w(45), sc.h(70), sc.w(2), sc.h(13), c.mon_sep)

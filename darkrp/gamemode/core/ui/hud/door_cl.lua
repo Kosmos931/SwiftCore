@@ -26,7 +26,7 @@ local hook_Add = hook.Add
 local hook_Run = hook.Run
 
 local function doortext(pos, ang, lines, lineCount, side)
-    local offset = ang:Up() + ang:Forward() * (side * -1.2) + ang:Right() * -23
+    local offset = ang:Up() + ang:Forward() * (side * -1.5) + ang:Right()
     local drawAng = Angle(ang.p, ang.y, ang.r)
     
     if side > 0 then
@@ -39,9 +39,9 @@ local function doortext(pos, ang, lines, lineCount, side)
     end
 
     local font = sc and sc.Font and sc.Font("Exo 2 SemiBold:55") or "Default"
-    local yOffset = -60
+    local yOffset = -150
     
-    cam_Start3D2D(pos + offset, drawAng, 0.07)
+    cam_Start3D2D(pos + offset , drawAng, 0.07)
         for i = 1, lineCount do
             draw_SimpleText(lines[i], font, 0, yOffset + i * 35, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
@@ -79,7 +79,7 @@ hook_Add("PostDrawTranslucentRenderables", "SC_DrawDoorInfo", function()
             continue 
         end
         
-        local entPos = ent:GetPos()
+        local entPos = ent:LocalToWorld(ent:OBBCenter())
         if plyPos:DistToSqr(entPos) > maxDistSqr then continue end
         
         local entIdx = ent:EntIndex()

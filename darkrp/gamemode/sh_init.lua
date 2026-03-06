@@ -49,6 +49,7 @@ SC.IncludeCL('core/admin/commands_cl.lua')
 SC.IncludeSH('cfg/cfg.lua')
 SC.IncludeSH('cfg/fractions.lua')
 SC.IncludeSH('cfg/admin_ranks.lua')
+SC.IncludeSH('core/systems/shop/shop_sh.lua')
 SC.IncludeSH('cfg/shop.lua')
 SC.IncludeSH('cfg/doors.lua')
 
