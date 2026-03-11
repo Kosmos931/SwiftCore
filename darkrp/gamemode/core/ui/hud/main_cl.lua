@@ -2,42 +2,35 @@ local ply
 local lerphp, lerpar, lerpst, lerphr = 0, 0, 0, 0
 
 local resources = {}
+resources.fonts = {
+    exo10 = sc.Font('Exo 2 Black:10'),
+    orb12 = sc.Font('Orbitron Bold:12'),
+    exo12 = sc.Font('Exo 2 Black:12'),
+    orb10 = sc.Font('Orbitron Bold:10'),
+    orb2_10 = sc.Font('Orbitron2:10'),
+    exo16 = sc.Font('Exo 2 Bold:16'),
+    exo_b12 = sc.Font('Exo 2 Bold:12')
+}
 
-local function InitResources()
-    if not sc or not sc.Font or resources.initialized then return end
-
-    resources.fonts = {
-        exo10 = sc.Font('Exo 2 Black:10'),
-        orb12 = sc.Font('Orbitron Bold:12'),
-        exo12 = sc.Font('Exo 2 Black:12'),
-        orb10 = sc.Font('Orbitron Bold:10'),
-        orb2_10 = sc.Font('Orbitron2:10'),
-        exo16 = sc.Font('Exo 2 Bold:16'),
-        exo_b12 = sc.Font('Exo 2 Bold:12')
-    }
-
-    resources.colors = {
-        black25 = sc.Color('000000', 25),
-        main_bg = sc.Color('050605', 80),
-        red_line = sc.Color('8C0303'),
-        label = sc.Color('353737'),
-        armor = sc.Color('5FA9FD'),
-        hunger = sc.Color('FEB803'),
-        separator = sc.Color('131313'),
-        white_text = sc.Color('F6EEBE'),
-        seg_bg = sc.Color('0C0C0C', 90),
-        hp_bar = sc.Color('8B0203'),
-        st_bar = sc.Color('454545'),
-        lvl_bg = sc.Color('8B0202'),
-        lvl_sh = sc.Color('8B0202', 25),
-        frac = sc.Color('3D3D44'),
-        mon_lbl = sc.Color('6D6E74'),
-        mon_val = sc.Color('99979D'),
-        mon_sep = sc.Color('3B3D44')
-    }
-    
-    resources.initialized = true
-end
+resources.colors = {
+    black25 = sc.Color('000000', 25),
+    main_bg = sc.Color('050605', 80),
+    red_line = sc.Color('8C0303'),
+    label = sc.Color('353737'),
+    armor = sc.Color('5FA9FD'),
+    hunger = sc.Color('FEB803'),
+    separator = sc.Color('131313'),
+    white_text = sc.Color('F6EEBE'),
+    seg_bg = sc.Color('0C0C0C', 90),
+    hp_bar = sc.Color('8B0203'),
+    st_bar = sc.Color('454545'),
+    lvl_bg = sc.Color('8B0202'),
+    lvl_sh = sc.Color('8B0202', 25),
+    frac = sc.Color('3D3D44'),
+    mon_lbl = sc.Color('6D6E74'),
+    mon_val = sc.Color('99979D'),
+    mon_sep = sc.Color('3B3D44')
+}
 
 local function segment(x,y,w,h,space,count,cur,max,col,bg)
     local per = max/count
@@ -51,9 +44,6 @@ end
 local showStamina = SC.Config.Stamina.Enable
 
 function GM:HUDPaint()
-    InitResources()
-    if not resources.initialized then return end
-    
     local f, c = resources.fonts, resources.colors
     ply = ply or LocalPlayer()
     if not IsValid(ply) then return end
@@ -62,7 +52,6 @@ function GM:HUDPaint()
     local ar, mar = ply:Armor(), ply:GetMaxArmor()
     local st = (showStamina and ply.GetStamina) and ply:GetStamina() or 0
     local hr = ply:GetHunger() or 0
-
     lerphp = sc.lerpvalue(lerphp, hp, mhp)
     lerpar = sc.lerpvalue(lerpar, ar, mar)
     lerpst = showStamina and sc.lerpvalue(lerpst, st, (SC.Config.Stamina and SC.Config.Stamina.Max or 100)) or 0
@@ -103,4 +92,49 @@ function GM:HUDPaint()
     RNDX.Draw(0, sc.w(45), sc.h(70), sc.w(2), sc.h(13), c.mon_sep)
     draw.SimpleText('Money: ', f.orb2_10, sc.w(55), sc.h(71), c.mon_lbl)
     draw.SimpleText(string.Comma(ply:GetMoney()) .. ' $', f.orb10, sc.w(55) + sc.GetTextSize('Money: ',f.orb2_10), sc.h(71), c.mon_val)
+end
+
+local fr
+if IsValid(fr) then fr:Remove() end
+function GM:OnContextMenuOpen()
+    if IsValid(fr) then fr:Remove() end
+    fr = vgui.Create("EditablePanel")
+    fr:SetSize(sc.w(650), sc.h(250))
+    fr:SetPos(ScrW() / 2 - fr:GetWide() / 2, ScrH())
+    fr:SetAlpha(0)
+    fr:MakePopup()
+    fr:AlphaTo(255, 0.35, 0)
+    fr:MoveTo(fr:GetX(), fr:GetY()/1.25, .2,0,1, function() fr:MoveTo(fr:GetX(), fr:GetY()*.95, 0.1) end)
+    local top = vgui.Create('Panel',fr)
+    top:Dock(TOP)
+    top:SetTall(sc.w(36))
+    top.Paint = function(self, w, h)
+        sc.DrawCutBox(0,0,w,h,sc.Color('020202',99),sc.Color('FFFFFF',10),15,1)
+        draw.SimpleText('INVENTORY', sc.Font('Orbitron:8'),45,6,sc.Color('8B0000',15))
+        draw.SimpleText('ИНВЕНТАРЬ', sc.Font('Exo 2 Bold Italic:14'),45,16,sc.Color('FFFFFF'))
+        local mat = GetSVGIcon('https://github.com/lucide-icons/lucide/blob/main/icons/package.svg?raw=true', 24)
+        if mat then
+            surface.SetDrawColor(sc.Color('8B0000'))
+            surface.SetMaterial(mat)
+            surface.DrawTexturedRect(14, 5, 24, 24)
+        end
+    end
+    local bottom = vgui.Create('Panel',fr)
+    bottom:Dock(BOTTOM)
+    bottom:SetTall(sc.w(30))
+    bottom.Paint = function(self, w, h)
+        sc.DrawCutBox(0,0,w,h,sc.Color('020202',99),sc.Color('FFFFFF',10),15)
+    end
+    local center = vgui.Create('Panel',fr)
+    center:Dock(FILL)
+    center.Paint = function(self, w, h)
+        sc.DrawCutBox(0,0,w,h,sc.Color('020202',99),sc.Color('FFFFFF',10),15)
+    end
+end
+
+
+function GM:OnContextMenuClose()
+    if IsValid(fr) then
+        fr:Remove()
+    end
 end

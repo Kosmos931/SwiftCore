@@ -49,8 +49,7 @@ local function FormatDuration(seconds, rawTime)
         or hours > 0 and string.format(" на %dч", hours)
         or minutes > 0 and string.format(" на %dм", minutes)
         or ""
-    local expStr = rawTime and string.format(" через %s", rawTime) or ""
-    return durationStr, expStr
+    return durationStr, ""
 end
 
 local function GetPlayerFromEntity(ply)
@@ -238,12 +237,23 @@ cmd.Create("setrank", function(ply, args)
             expTime = tonumber(args.exp_time) or 0
         end
     end
+
+    local restoreRank = currentRank
+    if args.exp_rank and args.exp_rank ~= "" then
+        restoreRank = string.lower(args.exp_rank)
+
+        if not (SC.AdminRanks and SC.AdminRanks.Get(restoreRank)) then
+            notifyErr(ply, string.format("Ранг '%s' не найден!", restoreRank))
+            return
+        end
+    end
+
     local durationStr, expStr = FormatDuration(expTime, args.raw and args.raw.exp_time)
     
     local prevRank = ""
     local expireTime = 0
     if expTime > 0 then
-        prevRank = currentRank
+        prevRank = restoreRank
         expireTime = os.time() + expTime
     end
     

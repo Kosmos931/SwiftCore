@@ -16,10 +16,6 @@ hook.Add("Initialize", "SC.Fractions.SetupTeams", function()
     end)
 end)
 
---[[
-    @param ply Player
-    @param fractionName string
-]]
 function frac.SetPlayerFraction(ply, fractionName)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     if not SC.FGet or not frac.NWKey then return end
@@ -55,10 +51,6 @@ function frac.SetPlayerFraction(ply, fractionName)
     end
 end
 
---[[
-    @param fraction Fraction
-    @return Vector|nil, Angle|nil
-]]
 function frac.GetSpawnPoint(fraction)
     if not fraction then return nil end
     
@@ -104,10 +96,6 @@ function frac.GetSpawnPoint(fraction)
     return nil
 end
 
---[[
-    @param ply Player
-    @param fraction Fraction
-]]
 function frac.GiveLoadout(ply, fraction)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     
@@ -139,9 +127,6 @@ function frac.GiveLoadout(ply, fraction)
     end
 end
 
---[[
-    @param fractionName string
-]]
 function PLAYER:SetFraction(fractionName)
     if not IsValid(self) or not self:IsPlayer() then return end
     if not SC.FSetPly then return end

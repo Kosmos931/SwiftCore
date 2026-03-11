@@ -50,15 +50,12 @@ do
     end)
 end
 do
-    ---@type number
     local FIGMA_RATE = 2
 
     local fontsCache = {}
 
     local string_Explode = string.Explode
     local surface_CreateFont = surface.CreateFont
-
-    ---@param name string
 
     function sc.Font(name)
         local fontData = string_Explode(':', name)
@@ -132,5 +129,70 @@ do
 
     function sc.lerpvalue(val, current, max)
         return sc.lerpto(val, current, max) 
+    end
+end
+do
+    function sc.DrawCutBox(x, y, w, h, bg, line, cut, tl, tr, br, bl)
+        local c = cut or sc.w(10)
+        local poly = {}
+        
+        local r, b = x + w - 1, y + h - 1
+
+        if tl then
+            poly[#poly + 1] = { x = x, y = y + c }
+            poly[#poly + 1] = { x = x + c, y = y }
+        else
+            poly[#poly + 1] = { x = x, y = y }
+        end
+
+        if tr then
+            poly[#poly + 1] = { x = r - c, y = y }
+            poly[#poly + 1] = { x = r, y = y + c }
+        else
+            poly[#poly + 1] = { x = r, y = y }
+        end
+
+        if br then
+            poly[#poly + 1] = { x = r, y = b - c }
+            poly[#poly + 1] = { x = r - c, y = b }
+        else
+            poly[#poly + 1] = { x = r, y = b }
+        end
+
+        if bl then
+            poly[#poly + 1] = { x = x + c, y = b }
+            poly[#poly + 1] = { x = x, y = b - c }
+        else
+            poly[#poly + 1] = { x = x, y = b }
+        end
+
+        surface.SetDrawColor(bg)
+        draw.NoTexture()
+        surface.DrawPoly(poly)
+
+        if not line then return end
+        surface.SetDrawColor(line)
+        for i = 1, #poly do
+            local p1 = poly[i]
+            local p2 = poly[i % #poly + 1]
+            surface.DrawLine(p1.x, p1.y, p2.x, p2.y)
+        end
+    end
+    function sc.DrawDiamond(cx, cy, size, fill, line)
+        surface.SetDrawColor(fill)
+        draw.NoTexture()
+        surface.DrawPoly({
+            { x = cx, y = cy - size },
+            { x = cx + size, y = cy },
+            { x = cx, y = cy + size },
+            { x = cx - size, y = cy }
+        })
+
+        if not line then return end
+        surface.SetDrawColor(line)
+        surface.DrawLine(cx, cy - size, cx + size, cy)
+        surface.DrawLine(cx + size, cy, cx, cy + size)
+        surface.DrawLine(cx, cy + size, cx - size, cy)
+        surface.DrawLine(cx - size, cy, cx, cy - size)
     end
 end

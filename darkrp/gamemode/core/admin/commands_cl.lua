@@ -8,10 +8,6 @@ local cmd = SC.AdminCommands
 
 cmd.CommandData = cmd.CommandData or {}
 
---[[
-    @param arg string
-    @return table
-]]
 local function GetPlayerAutocomplete(arg)
     arg = arg or ""
     arg = string.lower(arg)
@@ -31,21 +27,12 @@ local function GetPlayerAutocomplete(arg)
     return ret
 end
 
---[[
-    @param str string
-    @return boolean
-]]
 local function IsSteamID(str)
     if not str then return false end
     str = tostring(str)
     return string.find(str, "^STEAM_[%d:]+") ~= nil or string.find(str, "^7656%d+") ~= nil
 end
 
---[[
-    @param args table
-    @param endPos number
-    @return string
-]]
 local function ConcatArgs(args, endPos)
     local str = ""
     for i = 1, endPos do
@@ -55,11 +42,6 @@ local function ConcatArgs(args, endPos)
     return str
 end
 
---[[
-    @param cmdName string
-    @param arguments string
-    @return table
-]]
 local function AutoCompleteSc(cmdName, arguments)
     cmdName = cmdName or "sc"
     arguments = arguments or ""
@@ -127,11 +109,6 @@ local function AutoCompleteSc(cmdName, arguments)
     return (#commandList > 0) and commandList or {}
 end
 
---[[
-    @param ply Player
-    @param cmdName string
-    @param args table
-]]
 local function RunAdminCommandClient(ply, cmdName, args)
     if args and #args > 0 then
         local fullCommand = "_sc " .. table.concat(args, " ")
@@ -142,7 +119,7 @@ local function RunAdminCommandClient(ply, cmdName, args)
 end
 
 concommand.Add("sc", RunAdminCommandClient, AutoCompleteSc)
-concommand.Add("badmin", RunAdminCommandClient, AutoCompleteSc)
+
 
 net.Receive("SC.AdminCommands.Sync", function(len)
     if len > 32768 then
@@ -154,11 +131,4 @@ net.Receive("SC.AdminCommands.Sync", function(len)
     if type(commandData) == "table" then
         cmd.CommandData = commandData
     end
-end)
-
-hook.Add("Initialize", "SC.AdminCommands.Request", function()
-    timer.Simple(2, function()
-        if IsValid(LocalPlayer()) then
-        end
-    end)
 end)

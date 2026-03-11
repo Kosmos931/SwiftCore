@@ -1,8 +1,5 @@
 if not SERVER then return end
 if SC.Config.Stamina.Enable == false then return end
---[[
-    @return number
-]]
 function PLAYER:GetStamina()
     if not IsValid(self) or not self:IsPlayer() then
         return SC.Config.Stamina.Max or 100
@@ -13,9 +10,6 @@ function PLAYER:GetStamina()
     return self:GetNWFloat(SC.Stamina.NWKey, SC.Config.Stamina.Max or 100)
 end
 
---[[
-    @param amount number
-]]
 function PLAYER:SetStamina(amount)
     if not IsValid(self) or not self:IsPlayer() then return end
     if amount == nil or not SC.Config.Stamina.Max or not SC.Stamina.NWKey then return end
@@ -24,25 +18,16 @@ function PLAYER:SetStamina(amount)
     self:SetNWFloat(SC.Stamina.NWKey, amount)
 end
 
---[[
-    @param amount number
-]]
 function PLAYER:AddStamina(amount)
     if not IsValid(self) then return end
     self:SetStamina(self:GetStamina() + (tonumber(amount) or 0))
 end
 
---[[
-    @param amount number
-]]
 function PLAYER:TakeStamina(amount)
     if not IsValid(self) then return end
     self:SetStamina(self:GetStamina() - (tonumber(amount) or 0))
 end
 
---[[
-    @return number
-]]
 function PLAYER:GetStaminaPercent()
     if not IsValid(self) then return 100 end
     return (self:GetStamina() / (SC.Config.Stamina.Max or 100)) * 100

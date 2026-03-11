@@ -1,8 +1,5 @@
 if not CLIENT then return end
 
---[[
-    @return number
-]]
 function PLAYER:GetHunger()
     if not IsValid(self) or not self:IsPlayer() then
         return SC.Hunger.Max or 100
@@ -13,17 +10,11 @@ function PLAYER:GetHunger()
     return self:GetNWInt(SC.Hunger.NWKey, SC.Hunger.Max or 100)
 end
 
---[[
-    @return number
-]]
 function PLAYER:GetHungerPercent()
     if not IsValid(self) then return 100 end
     return (self:GetHunger() / (SC.Hunger.Max or 100)) * 100
 end
 
---[[
-    @return boolean
-]]
 function PLAYER:IsHungry()
     if not IsValid(self) then return false end
     local hunger = self:GetHunger()

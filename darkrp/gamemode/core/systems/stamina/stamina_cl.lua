@@ -1,9 +1,6 @@
 if not CLIENT then return end
 if SC.Config.Stamina.Enable == false then return end
 
---[[
-    @return number
-]]
 function PLAYER:GetStamina()
     if not IsValid(self) or not self:IsPlayer() then
         return SC.Config.Stamina.Max or 100
@@ -14,9 +11,6 @@ function PLAYER:GetStamina()
     return math.floor(self:GetNWInt(SC.Stamina.NWKey, SC.Config.Stamina.Max or 100))
 end
 
---[[
-    @return number
-]]
 function PLAYER:GetStaminaPercent()
     if not IsValid(self) then return 100 end
     return (self:GetStamina() / (SC.Config.Stamina.Max or 100)) * 100

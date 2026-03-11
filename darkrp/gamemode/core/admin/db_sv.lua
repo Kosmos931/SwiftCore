@@ -3,9 +3,6 @@ if not SERVER then return end
 SC.AdminDB = SC.AdminDB or {}
 local db = SC.AdminDB
 
---[[
-    @return boolean
-]]
 function db.Initialize()
     local adminTable = [[
         CREATE TABLE IF NOT EXISTS sc_admin (
@@ -80,9 +77,6 @@ function db.Initialize()
     return true
 end
 
---[[
-    @param ply Player
-]]
 function db.Load(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     
@@ -194,9 +188,6 @@ function db.Load(ply)
     end
 end
 
---[[
-    @param ply Player
-]]
 function db.Save(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     
@@ -251,10 +242,6 @@ function db.Save(ply)
     end
 end
 
---[[
-    @param steamid string
-    @return boolean, table|nil
-]]
 function db.IsBanned(steamid)
     if not steamid then return false, nil end
     
@@ -291,15 +278,6 @@ function db.IsBanned(steamid)
     return false, nil
 end
 
---[[
-    @param steamid string
-    @param reason string
-    @param adminSteamid string
-    @param duration number
-    @param targetName string
-    @param adminName string
-    @return boolean
-]]
 function db.Ban(steamid, reason, adminSteamid, duration, targetName, adminName)
     if not steamid then return false end
     
@@ -328,10 +306,6 @@ function db.Ban(steamid, reason, adminSteamid, duration, targetName, adminName)
     return true
 end
 
---[[
-    @param steamid string
-    @return boolean
-]]
 function db.Unban(steamid)
     if not steamid then return false end
     

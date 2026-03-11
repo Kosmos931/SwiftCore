@@ -16,10 +16,6 @@ hook.Add("PlayerDisconnected", "SC.AdminChat.CleanupRateLimit", function(ply)
     end
 end)
 
---[[
-    @param ply Player
-    @return boolean
-]]
 local function CheckChatRateLimit(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return true end
     
@@ -49,13 +45,6 @@ local function CheckChatRateLimit(ply)
     return true
 end
 
---[[
-    @param ply Player
-    @param text string
-    @param teamChat boolean
-    @param dead boolean
-    @return string|nil
-]]
 local function OnPlayerChat(ply, text, teamChat, dead)
     if not IsValid(ply) or not ply:IsPlayer() then return "" end
     if not text or text == "" then return "" end

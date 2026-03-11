@@ -11,10 +11,6 @@ admin.NWKeyFlags = admin.NWKeyFlags or "SC.Admin.Flags"
 util.AddNetworkString(admin.NWKey)
 util.AddNetworkString(admin.NWKeyFlags)
 
---[[
-    @param ply Player
-    @return string
-]]
 function admin.GetRank(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return admin.DefaultRank or "user" end
     
@@ -37,10 +33,6 @@ function admin.GetRank(ply)
     return data.rank or admin.DefaultRank or "user"
 end
 
---[[
-    @param ply Player
-    @return string
-]]
 function admin.GetFlags(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return "" end
     
@@ -85,11 +77,6 @@ function admin.GetFlags(ply)
     return flags
 end
 
---[[
-    @param ply Player
-    @param rank string
-    @return boolean
-]]
 function admin.SetRank(ply, rank)
     if not IsValid(ply) or not ply:IsPlayer() then return false end
     local rankData = SC.AdminRanks.Get(rank)
@@ -109,11 +96,6 @@ function admin.SetRank(ply, rank)
     return true
 end
 
---[[
-    @param ply Player
-    @param flags string
-    @return boolean
-]]
 function admin.SetFlags(ply, flags)
     if not IsValid(ply) or not ply:IsPlayer() then return false end
     
@@ -138,11 +120,6 @@ function admin.SetFlags(ply, flags)
     return true
 end
 
---[[
-    @param ply Player
-    @param flag string
-    @return boolean
-]]
 function admin.HasFlag(ply, flag)
     if not IsValid(ply) or not ply:IsPlayer() then return false end
     if not flag or #flag ~= 1 then return false end
@@ -153,11 +130,6 @@ function admin.HasFlag(ply, flag)
     return string.find(flags, flag, 1, true) ~= nil
 end
 
---[[
-    @param ply Player
-    @param flags string
-    @return boolean
-]]
 function admin.HasAnyFlag(ply, flags)
     if not IsValid(ply) or not ply:IsPlayer() then return false end
     if not flags or flags == "" then return true end
@@ -175,11 +147,6 @@ function admin.HasAnyFlag(ply, flags)
     return false
 end
 
---[[
-    @param ply Player
-    @param flags string
-    @return boolean
-]]
 function admin.HasAllFlags(ply, flags)
     if not IsValid(ply) or not ply:IsPlayer() then return false end
     if not flags or flags == "" then return false end
@@ -197,10 +164,6 @@ function admin.HasAllFlags(ply, flags)
     return true
 end
 
---[[
-    @param ply Player
-    @return number
-]]
 function admin.GetRankLevel(ply)
     local rank = admin.GetRank(ply)
     if not rank then return 0 end
@@ -214,11 +177,6 @@ function admin.GetRankLevel(ply)
     return rankData.RankLevel or 0
 end
 
---[[
-    @param ply Player
-    @param minRank string
-    @return boolean
-]]
 function admin.HasRankOrHigher(ply, minRank)
     local ranks = SC.AdminRanks
     if not ranks then return false end
@@ -229,10 +187,6 @@ function admin.HasRankOrHigher(ply, minRank)
     return admin.GetRankLevel(ply) >= (minRankData.RankLevel or 0)
 end
 
---[[
-    @param ply Player
-    @return number
-]]
 function admin.GetImmunity(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return 0 end
     
@@ -245,9 +199,6 @@ function admin.GetImmunity(ply)
     return rankData.Immunity or 0
 end
 
---[[
-    @param ply Player
-]]
 function admin.LoadPlayer(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     

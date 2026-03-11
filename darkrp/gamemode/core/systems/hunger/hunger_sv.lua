@@ -1,8 +1,5 @@
 if not SERVER then return end
 
---[[
-    @return number
-]]
 function PLAYER:GetHunger()
     if not IsValid(self) or not self:IsPlayer() then
         return SC.Hunger.Max or 100
@@ -13,9 +10,6 @@ function PLAYER:GetHunger()
     return self:GetNWInt(SC.Hunger.NWKey, SC.Hunger.Max or 100)
 end
 
---[[
-    @param amount number
-]]
 function PLAYER:SetHunger(amount)
     if not IsValid(self) or not self:IsPlayer() then return end
     if amount == nil or not SC.Hunger.Max or not SC.Hunger.NWKey then return end
@@ -32,25 +26,16 @@ function PLAYER:SetHunger(amount)
     end
 end
 
---[[
-    @param amount number
-]]
 function PLAYER:AddHunger(amount)
     if not IsValid(self) then return end
     self:SetHunger(self:GetHunger() + (tonumber(amount) or 0))
 end
 
---[[
-    @param amount number
-]]
 function PLAYER:TakeHunger(amount)
     if not IsValid(self) then return end
     self:SetHunger(self:GetHunger() - (tonumber(amount) or 0))
 end
 
---[[
-    @return boolean
-]]
 function PLAYER:IsHungry()
     if not IsValid(self) then return false end
     local hunger = self:GetHunger()
@@ -58,9 +43,6 @@ function PLAYER:IsHungry()
     return hunger <= 0 or hunger < (max * 0.2)
 end
 
---[[
-    @return number
-]]
 function PLAYER:GetHungerPercent()
     if not IsValid(self) then return 100 end
     return (self:GetHunger() / (SC.Hunger.Max or 100)) * 100

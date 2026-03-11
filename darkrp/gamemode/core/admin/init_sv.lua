@@ -32,10 +32,6 @@ https://discord.gg/CGH6ax4n
 
 ]]
 
---[[
-    @param seconds number
-    @return string
-]]
 local function FormatTimeLeft(seconds)
     if seconds <= 0 then return "Разбанен" end
     
@@ -55,10 +51,6 @@ local function FormatTimeLeft(seconds)
     return #parts > 0 and table.concat(parts, " ") or seconds .. " секунд"
 end
 
---[[
-    @param data table
-    @return string
-]]
 function SC.AdminDB.GetAdminNameFromData(data)
     if not data then return "Неизвестен" end
     
@@ -83,10 +75,6 @@ function SC.AdminDB.GetAdminNameFromData(data)
     return adminSteamid ~= "" and string.format("Неизвестен(%s)", adminSteamid) or "Неизвестен"
 end
 
---[[
-    @param data table
-    @return string
-]]
 function SC.AdminDB.FormatBanMessage(data)
     if not data then return "" end
     
@@ -99,14 +87,6 @@ function SC.AdminDB.FormatBanMessage(data)
     return string.format(banMessage, banDate, unbanDate, timeLeft, admin, reason)
 end
 
---[[
-    @param steamid64 string
-    @param ip string
-    @param pass string
-    @param cl_pass string
-    @param name string
-    @return boolean, string|nil
-]]
 function SC.AdminDB.CheckPassword(steamid64, ip, pass, cl_pass, name)
     if not SC.AdminDB or not SC.AdminDB.IsBanned then return true end
     

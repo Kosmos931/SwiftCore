@@ -11,9 +11,6 @@ local commandRateLimit = {}
 local COMMAND_RATE_LIMIT = 10
 local COMMAND_RATE_WINDOW = 1
 
---[[
-    @param steamid string
-]]
 local function CleanupRateLimit(steamid)
     if not steamid then return end
     commandRateLimit[steamid] = nil
@@ -28,10 +25,6 @@ hook.Add("PlayerDisconnected", "SC.AdminCommands.CleanupRateLimit", function(ply
     end
 end)
 
---[[
-    @param ply Player|nil
-    @return boolean
-]]
 local function CheckRateLimit(ply)
     local isConsole = not ply or not IsValid(ply) or not ply:IsPlayer()
     if isConsole then return true end
@@ -62,12 +55,6 @@ local function CheckRateLimit(ply)
     return true
 end
 
---[[
-    @param ply Player|nil
-    @param cmdName string
-    @param args table
-    @param cmdPrefix string|nil
-]]
 local function RunAdminCommand(ply, cmdName, args, cmdPrefix)
     local isConsole = not ply or not IsValid(ply) or not ply:IsPlayer()
     if not isConsole then
@@ -118,7 +105,6 @@ local function RunAdminCommand(ply, cmdName, args, cmdPrefix)
                     end
                 end
                 steamid = string.gsub(steamid, ":+", ":")
-                steamid = string.gsub(steamid, ":+", ":")
                 table.insert(newArgs, steamid)
             elseif string.find(arg, "^7656%d+") then
                 table.insert(newArgs, arg)
@@ -134,11 +120,6 @@ local function RunAdminCommand(ply, cmdName, args, cmdPrefix)
     cmd.Run(ply, commandName, args or {})
 end
 
---[[
-    @param cmdName string
-    @param arguments string
-    @return table
-]]
 local function AutoCompleteSc(cmdName, arguments)
     cmdName = cmdName or "sc"
     arguments = arguments or ""
@@ -188,15 +169,10 @@ concommand.Add("sc", function(ply, cmdName, args)
     RunAdminCommand(ply, cmdName, args, "sc")
 end, AutoCompleteSc)
 
-concommand.Add("badmin", function(ply, cmdName, args)
-    RunAdminCommand(ply, cmdName, args, "badmin")
-end, AutoCompleteSc)
+
 
 util.AddNetworkString("SC.AdminCommands.Sync")
 
---[[
-    @param ply Player
-]]
 local function SyncCommandNamesToClient(ply)
     if not SC.AdminCommands or not SC.AdminCommands.GetTable then
         return

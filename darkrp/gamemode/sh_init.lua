@@ -33,10 +33,9 @@ SC.include_dir = function(dir, recursive)
 		end
 	end
 end
-
+SC.IncludeCL('core/ui/lib/funct_cl.lua')
 SC.IncludeSH('core/systems/money/money_sh.lua')
-SC.IncludeSH('core/systems/hunger/hunger_sh.lua'
-)
+SC.IncludeSH('core/systems/hunger/hunger_sh.lua')
 SC.IncludeSH('core/fractions/core/api_sh.lua')
 
 SC.IncludeSH('core/admin/core/api_sh.lua')

@@ -8,9 +8,6 @@ local function GetBaseFraction()
     return (SC.FBase and SC.FBase()) or "citizen"
 end
 
---[[
-    @return boolean
-]]
 function db.Initialize()
     local query = string.format("CREATE TABLE IF NOT EXISTS sc_players (steamid TEXT PRIMARY KEY, money INTEGER DEFAULT 0, hunger INTEGER DEFAULT 100, name TEXT, fraction TEXT DEFAULT 'citizen')")
     local result = sql.Query(query)
@@ -21,9 +18,6 @@ function db.Initialize()
     return true
 end
 
---[[
-    @param ply Player
-]]
 function db.LoadPlayer(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     
@@ -71,9 +65,6 @@ function db.LoadPlayer(ply)
     end)
 end
 
---[[
-    @param ply Player
-]]
 function db.SavePlayer(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     
@@ -101,9 +92,6 @@ function db.SavePlayer(ply)
     end
 end
 
---[[
-    @param ply Player
-]]
 function db.ApplyPlayerData(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return end
     
@@ -122,10 +110,6 @@ function db.ApplyPlayerData(ply)
     end
 end
 
---[[
-    @param ply Player
-    @return table|nil
-]]
 function db.GetPlayerData(ply)
     if not IsValid(ply) or not ply:IsPlayer() then return nil end
     local steamid = ply:SteamID64()
@@ -150,9 +134,6 @@ end)
 local saveQueue = {}
 local isSaving = false
 
---[[
-    Обрабатывает очередь сохранений (сохраняет по одному игроку за тик)
-]]
 local function ProcessSaveQueue()
     if isSaving then return end
     if #saveQueue == 0 then return end
