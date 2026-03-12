@@ -26,51 +26,42 @@ local svgBridge = {
 
 file.CreateDir("svg-material")
 
+local iconCache = {}
+local downloadQueue = {}
+
 local function GetBridgePanel()
     if IsValid(svgBridge.pnl) then return svgBridge.pnl end
     svgBridge.pnl = vgui.Create("DHTML")
     svgBridge.pnl:SetSize(200, 200)
     svgBridge.pnl:SetAlpha(0)
     svgBridge.pnl:SetHTML(svgBridge.code)
+    
     svgBridge.pnl:AddFunction("gmod", "OnSuccess", function(uid, b64)
         local resp = svgBridge.queue[uid]
         if resp then
             file.Write(resp.path, util.Base64Decode(b64))
-            local mat = Material("data/" .. resp.path, resp.flags)
-            resp.cback(true, mat)
+            timer.Simple(0.05, function()
+                local mat = Material("data/" .. resp.path, resp.flags)
+                if resp.cback then resp.cback(true, mat) end
+            end)
             svgBridge.queue[uid] = nil
         end
     end)
+    
     svgBridge.pnl:AddFunction("gmod", "OnFailed", function(uid, err)
         if svgBridge.queue[uid] then svgBridge.queue[uid].cback(false, err) end
         svgBridge.queue[uid] = nil
     end)
+    
     return svgBridge.pnl
 end
 
-function SvgStringToMaterial(svgContent, width, height, cback, flags)
-    local uid = util.CRC(svgContent .. width .. height)
-    local outPath = "svg-material/" .. uid .. ".png"
-
-    if file.Exists(outPath, "DATA") then
-        return cback(true, Material("data/" .. outPath, flags))
-    end
-
-    local pnl = GetBridgePanel()
-    svgBridge.queue[uid] = {cback = cback, flags = flags, path = outPath}
-    
-    timer.Simple(0.2, function()
-        if IsValid(pnl) then
-            pnl:QueueJavascript(string.format("window.SvgBridge(%q, %q, %s, %s)", uid, svgContent, width, height))
-        end
-    end)
-end
-
-local iconCache = {}
-local downloadQueue = {}
-
 function GetSVGIcon(url, size, callback)
+    if not url or url == "" then return end
+    
     local id = util.CRC(url .. size)
+    local urlLower = url:lower()
+    local isSvg = string.find(urlLower, "%.svg") or string.find(urlLower, "svg")
     local cachePath = "svg-material/" .. id .. ".png"
 
     if iconCache[id] then return iconCache[id] end
@@ -78,24 +69,46 @@ function GetSVGIcon(url, size, callback)
         iconCache[id] = Material("data/" .. cachePath, "smooth mips")
         return iconCache[id]
     end
-
     if downloadQueue[id] then return nil end
     downloadQueue[id] = true
 
-    http.Fetch(url, function(body, len, headers, code)
-        if code ~= 200 or len == 0 then
-            downloadQueue[id] = nil
-            return
+    -- Discord
+    local targetURL = string.gsub(url, "format=webp", "format=png")
+
+    http.Fetch(targetURL, function(body, len, headers, code)
+        if code ~= 200 or len == 0 then 
+            downloadQueue[id] = nil 
+            return 
         end
-        local whiteSvg = string.gsub(body, 'stroke=".-"', 'stroke="#ffffff"')
-        SvgStringToMaterial(whiteSvg, size, size, function(success, mat)
-            downloadQueue[id] = nil
-            if success then
+
+        if isSvg then
+            local whiteSvg = string.gsub(body, 'stroke=".-"', 'stroke="#ffffff"')
+            local pnl = GetBridgePanel()
+            
+            svgBridge.queue[id] = {
+                path = cachePath, 
+                flags = "smooth mips", 
+                cback = function(success, mat)
+                    if success then
+                        iconCache[id] = mat
+                        if callback then callback(mat) end
+                    end
+                end
+            }
+            
+            pnl:QueueJavascript(string.format("window.SvgBridge(%q, %q, %s, %s)", id, whiteSvg, size, size))
+        else
+            file.Write(cachePath, body)
+            timer.Simple(0.1, function()
+                local mat = Material("data/" .. cachePath, "smooth mips")
                 iconCache[id] = mat
                 if callback then callback(mat) end
-            end
-        end, "smooth mips") --noclamp smooth
-    end, function() downloadQueue[id] = nil end)
+            end)
+        end
+        downloadQueue[id] = nil
+    end, function() 
+        downloadQueue[id] = nil 
+    end)
 
     return nil
 end
