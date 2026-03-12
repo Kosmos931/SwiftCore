@@ -121,7 +121,7 @@ function GM:OnContextMenuOpen()
                 draw.SimpleText(self.Item.count, sc.Font('Orbitron:10'), w - sc.w(10), h - sc.h(18), color_white, TEXT_ALIGN_RIGHT)
             end
         end
-        slot.DoClick = function(self)
+        slot.DoClick = function(self) -- надо бы сделать через дабл клик .... мбмб
             if self.Item then
                 // self.Item:Use()
                 print('click')
