@@ -93,10 +93,9 @@ function GM:OnContextMenuOpen()
         slot:Droppable("inv_slot")
         slot:Receiver("inv_slot", function(self, panels, dropped)
             if dropped then
-                local drag = panels[1]
                 local tempItem = self.Item
-                self.Item = drag.Item
-                drag.Item = tempItem
+                self.Item = panels[1].Item
+                panels[1].Item = tempItem
             end
         end)
 
@@ -109,15 +108,15 @@ function GM:OnContextMenuOpen()
             
             if self.Item then
                 local itemColor = sc.Color(self.Item.color)
-                surface.SetDrawColor(itemColor)
-                surface.DrawRect(0, sc.h(10), sc.w(2), h - sc.h(20))
+                // surface.SetDrawColor(itemColor)
+                // surface.DrawRect(0, sc.h(10), sc.w(2), h - sc.h(20))
                 
                 draw.SimpleText(self.Item.name, sc.Font('Exo 2 SemiBold:12'), w / 2, h * 0.65, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                 
                 surface.SetDrawColor(sc.Color('FFFFFF', 20))
                 surface.DrawRect(sc.w(10), h * 0.75, w - sc.w(20), 1)
 
-                draw.SimpleText(self.Item.type:upper(), sc.Font('Orbitron:8'), sc.w(10), h - sc.h(16), itemColor, TEXT_ALIGN_LEFT)
+                draw.SimpleText(self.Item.type, sc.Font('Orbitron:8'), sc.w(10), h - sc.h(16), itemColor, TEXT_ALIGN_LEFT)
                 draw.SimpleText(self.Item.count, sc.Font('Orbitron:10'), w - sc.w(10), h - sc.h(18), color_white, TEXT_ALIGN_RIGHT)
             end
         end
