@@ -31,47 +31,55 @@ function GM:OnContextMenuOpen()
     fr:MakePopup()
     fr:AlphaTo(255, 0.35, 0)
     fr:MoveTo(fr:GetX(), fr:GetY() / 1.25, .2, 0, 1, function() fr:MoveTo(fr:GetX(), fr:GetY() * .95, 0.1) end)
+    fr.Paint = function(self, w, h)
+        RNDX.DrawShadows(0, 0, 0, w, h, sc.Color('000000', 45), 18, 22)
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('070707', 90), rndx.BLUR)
+    end
     
     local top = vgui.Create('Panel', fr)
     top:Dock(TOP)
-    top:SetTall(sc.h(36))
+    top:SetTall(sc.h(44))
     top.Paint = function(self, w, h)
-        sc.DrawCutBox(0, 0, w, h, sc.Color('020202', 99), sc.Color('FFFFFF', 10), sc.w(15), 1)
-        draw.SimpleText('INVENTORY', sc.Font('Orbitron:8'), sc.w(45), sc.h(6), sc.Color('8B0000', 15))
-        draw.SimpleText('ИНВЕНТАРЬ', sc.Font('Exo 2 Bold Italic:14'), sc.w(45), sc.h(16), sc.Color('FFFFFF'))
-        
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('0B0B0B', 92), rndx.BLUR)
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('0D0D0D', 96))
+        RNDX.Draw(0, 0, h - sc.h(2), w, sc.h(2), sc.Color('8B0000', 65))
+        draw.SimpleText('INVENTORY', sc.Font('Orbitron:8'), sc.w(50), sc.h(8), sc.Color('8B0000', 25))
+        draw.SimpleText('ИНВЕНТАРЬ', sc.Font('Exo 2 Bold Italic:14'), sc.w(50), sc.h(18), sc.Color('FFFFFF'))
         local mat = GetSVGIcon('https://github.com/lucide-icons/lucide/blob/main/icons/package.svg?raw=true', 24)
         if mat then
             surface.SetDrawColor(sc.Color('8B0000'))
             surface.SetMaterial(mat)
-            surface.DrawTexturedRect(sc.w(14), sc.h(5), sc.w(24), sc.h(24))
+            surface.DrawTexturedRect(sc.w(16), sc.h(10), sc.w(22), sc.h(22))
         end
-        rndx.Draw(0,w - sc.w(150), h -sc.h(28) , sc.w(100), sc.h(22), sc.Color('000000', 60))
-        rndx.Draw(0,w - sc.w(150), h -sc.h(28) , sc.w(3), sc.h(22), sc.Color('8B0000', 30))
-        draw.SimpleText('SLOTS:', sc.Font('Orbitron2:6'),w - sc.w(140), h/2, sc.Color('FFFFFF',30),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
-        draw.SimpleText('18', sc.Font('Exo 2 Bold Italic:14'),w - sc.w(130) + sc.GetTextSize('SLOTS:', sc.Font('Orbitron2:6')), h/2, sc.Color('FFFFFF'),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-        draw.SimpleText(' / 50', sc.Font('Orbitron:8'),w - sc.w(125) + sc.GetTextSize('SLOTS:', sc.Font('Orbitron:6')) + sc.GetTextSize('18', sc.Font('Exo 2 Bold Italic:14')), h/2, sc.Color('FFFFFF',30),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+        RNDX.Draw(0, w - sc.w(120), sc.h(8), sc.w(100), sc.h(28), sc.Color('000000', 35))
+        RNDX.Draw(0, w - sc.w(120), sc.h(8), sc.w(3), sc.h(28), sc.Color('8B0000', 60))
+        draw.SimpleText('SLOTS:', sc.Font('Orbitron2:6'), w - sc.w(110), sc.h(22), sc.Color('FFFFFF', 35), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+        draw.SimpleText('18', sc.Font('Exo 2 Bold Italic:14'), w - sc.w(100) + sc.GetTextSize('SLOTS:', sc.Font('Orbitron2:6')), sc.h(22), sc.Color('FFFFFF'), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+        draw.SimpleText(' / 50', sc.Font('Orbitron:8'), w - sc.w(96) + sc.GetTextSize('SLOTS:', sc.Font('Orbitron:6')) + sc.GetTextSize('18', sc.Font('Exo 2 Bold Italic:14')), sc.h(22), sc.Color('FFFFFF', 40), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
     end
-    
+
     local bottom = vgui.Create('Panel', fr)
     bottom:Dock(BOTTOM)
-    bottom:SetTall(sc.h(30))
+    bottom:SetTall(sc.h(32))
     bottom.Paint = function(self, w, h)
-        sc.DrawCutBox(0, 0, w, h, sc.Color('020202', 99), sc.Color('FFFFFF', 10), sc.w(15))
-        draw.SimpleText('ПКМ - МЕНЮ', sc.Font('Orbitron2:8'), sc.w(14), sc.h(9), sc.Color('FFFFFF', 10))
-        draw.SimpleText('DRAG - ПЕРЕМЕСТИТЬ', sc.Font('Orbitron2:8'), sc.GetTextSize('ПКМ - МЕНЮ', sc.Font('Orbitron2:8')) + sc.w(14) + sc.w(15), sc.h(9), sc.Color('FFFFFF', 10))
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('0B0B0B', 92), rndx.BLUR)
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('0D0D0D', 96))
+        RNDX.Draw(0, 0, 0, w, sc.h(2), sc.Color('8B0000', 60))
+        draw.SimpleText('ПКМ - МЕНЮ', sc.Font('Orbitron2:8'), sc.w(16), sc.h(10), sc.Color('FFFFFF', 20))
+        draw.SimpleText('DRAG - ПЕРЕМЕСТИТЬ', sc.Font('Orbitron2:8'), sc.GetTextSize('ПКМ - МЕНЮ', sc.Font('Orbitron2:8')) + sc.w(16) + sc.w(12), sc.h(10), sc.Color('FFFFFF', 20))
     end
 
     local center = vgui.Create('Panel', fr)
     center:Dock(FILL)
     center.Paint = function(self, w, h)
-        sc.DrawCutBox(0, 0, w, h, sc.Color('020202', 99), sc.Color('FFFFFF', 10), sc.w(15))
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('0B0B0B', 88), rndx.BLUR)
+        RNDX.Draw(0, 0, 0, w, h, sc.Color('0B0B0B', 66))
     end
-    
+
     local scroll = vgui.Create("DScrollPanel", center)
     scroll:Dock(FILL)
     scroll:GetVBar():SetWide(0)
-    scroll:DockMargin(sc.w(14), sc.h(10), sc.w(10), sc.h(10))
+    scroll:DockMargin(sc.w(16), sc.h(12), sc.w(12), sc.h(12))
 
     local grid = vgui.Create("DIconLayout", scroll)
     grid:Dock(FILL)
@@ -100,29 +108,21 @@ function GM:OnContextMenuOpen()
         end)
 
         slot.Paint = function(self, w, h)
-            if self.Hovered then
-                sc.DrawCutBox(0, 0, w, h, sc.Color('FFFFFF', 5), sc.Color('FFFFFF', 30), sc.w(6), false, false, false, true)
-            else
-                sc.DrawCutBox(0, 0, w, h, sc.Color('000000', 80), sc.Color('FFFFFF', 10), sc.w(6), false, false, false, true)
-            end
-            
+            local hover = self.Hovered
+            RNDX.Draw(sc.w(6), 0, 0, w, h, hover and sc.Color('111111', 80) or sc.Color('000000', 50))
+            RNDX.DrawOutlined(sc.w(6), 0, 0, w, h, hover and sc.Color('8B0000', 40) or sc.Color('FFFFFF', 10), 1)
+            // draw.SimpleText(i, sc.Font('Orbitron:55'), w/2, h/1.5, sc.Color('FFFFFF', 1), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             if self.Item then
                 local itemColor = sc.Color(self.Item.color)
-                // surface.SetDrawColor(itemColor)
-                // surface.DrawRect(0, sc.h(10), sc.w(2), h - sc.h(20))
-                
-                draw.SimpleText(self.Item.name, sc.Font('Exo 2 SemiBold:12'), w / 2, h * 0.65, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                
                 surface.SetDrawColor(sc.Color('FFFFFF', 20))
                 surface.DrawRect(sc.w(10), h * 0.75, w - sc.w(20), 1)
-
+                draw.SimpleText(self.Item.name, sc.Font('Exo 2 SemiBold:12'), w / 2, h * 0.65, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                 draw.SimpleText(self.Item.type, sc.Font('Orbitron:8'), sc.w(10), h - sc.h(16), itemColor, TEXT_ALIGN_LEFT)
                 draw.SimpleText(self.Item.count, sc.Font('Orbitron:10'), w - sc.w(10), h - sc.h(18), color_white, TEXT_ALIGN_RIGHT)
             end
         end
-        slot.DoClick = function(self) -- надо бы сделать через дабл клик .... мбмб
+        slot.DoClick = function(self)
             if self.Item then
-                // self.Item:Use()
                 print('click')
             end
         end
@@ -172,11 +172,9 @@ function GM:OnContextMenuOpen()
             add_opt("Использовать", sc.Color('00FF88'), function() print("Использовать " .. s.Item.name) end)
             line()
             add_opt("Бросить 1", sc.Color('FFFFFF'), function() print("Выкинуть 1 штучку") end)
-                
-            // if s.Item.count > 1 then
-            //     add_opt("Бросить все ("..s.Item.count..")", sc.Color('FFFFFF'), function() print("Drop All") end) -- не надо оно как будто бы
-            // end
-            
+            if s.Item.count > 1 then
+                add_opt("Бросить все ("..s.Item.count..")", sc.Color('FFFFFF'), function() print("Drop All") end) -- для коробочек можно почему бы и нет
+            end
             line()
             add_opt("Удалить", sc.Color('8B0000'), function() print("Удалить") end)
 
